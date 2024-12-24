@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deadliestAttackTypes, highestCasualtyRegions, incidentTrends } from "../routes/analysis";
+import { deadliestAttackTypes, highestCasualtyRegions, incidentTrends } from "../controllers/analysisController";
 
 const router = Router();
 

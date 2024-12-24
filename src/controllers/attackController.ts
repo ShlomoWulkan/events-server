@@ -7,7 +7,6 @@ export const create = async (
   res: Response
 ) => {
   try {
-    // console.log(req.body);
     const deadliestAttack = await createService(req.body);
     res.status(200).json(deadliestAttack);
   } catch (err) {

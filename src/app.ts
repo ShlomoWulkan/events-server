@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import sidController from "./controllers/sid";
-import analysisController from "./controllers/analysis";
-import relationshipsController from "./controllers/relationships"
-import attackController from "./controllers/attack"
+import sidRouter from "./controllers/sid";
+import analysisRouter from "./routes/analysisRouter";
+import relationshipsRouter from "./routes/relationshipsRouter"
+import attackRouter from "./routes/attackRouter"
 
 import { connectToMongo } from "./config/db";
 
@@ -29,11 +29,11 @@ import "./socket/io";
 app.use(express.json());
 app.use(cors());
 
-app.use("/api", sidController);
-app.use("/api/analysis", analysisController);
-app.use("/api/relationships", relationshipsController);
-app.use("/api/attack", attackController);
+app.use("/api", sidRouter);
+app.use("/api/analysis", analysisRouter);
+app.use("/api/relationships", relationshipsRouter);
+app.use("/api/attack", attackRouter);
 
 server.listen(PORT, () => {
-  console.log(`Server started, Visit "http://localhost:${PORT}"`);
+  console.log(`Server is running on "http://localhost:${PORT}"`);
 });

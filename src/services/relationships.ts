@@ -51,7 +51,7 @@ export const groupByYearService = async (quary: {
       ]);
     } else if (year) {
       groupBy = await event.aggregate([
-        { $match: { iyear: parseInt(year) } },
+        { $match: { iyear: parseInt(year), gname: { $ne: "Unknown" } } },
         { $group: { _id: { gname: "$gname" }, count: { $sum: 1 } } },
         { $sort: { count: -1 } },
       ]);
@@ -64,45 +64,52 @@ export const groupByYearService = async (quary: {
   }
 };
 
-export const deadliestRegionsService = async (quary: {
-  gname: string;
-}): Promise<responseDTO> => {
+export const deadliestRegionsService = async (query: { gname: string }): Promise<responseDTO> => {
   try {
-    const { gname } = quary;
-    if (!gname) throw new Error("gname quary is required!");
+    const { gname } = query;
+    if (!gname) throw new Error("gname query is required!");
 
     const allCurrGnameAttacks = await event.aggregate([
-      { $match: { gname: gname } },
-      { $group: { _id: "$region_txt", count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
+      { $match: { gname: gname } }, // רק אירועים של הקבוצה הספציפית
+      {
+        $group: {
+          _id: "$country_txt",
+          totalVictims: { $sum: { $add: ["$nkill", "$nwound"] } },
+          longitude: { $first: { $cond: [{ $ne: ["$longitude", null] }, "$longitude", null] } },
+          latitude: { $first: { $cond: [{ $ne: ["$latitude", null] }, "$latitude", null] } },
+        },
+      },
+      { $sort: { totalVictims: -1 } }, 
     ]);
 
-    console.log("before= ", { allCurrGnameAttacks });
-    const arrToReturen = [];
-
-    for (let i = 0; i < allCurrGnameAttacks.length; i++) {
-      let curr = allCurrGnameAttacks[i];
-
-      let mostInCurrentArea = await event.find({ region_txt: curr._id });
-      if (!mostInCurrentArea || mostInCurrentArea.length == 0)
-        throw new Error("!mostInCurrentArea || mostInCurrentArea.length == 0");
-      mostInCurrentArea = mostInCurrentArea.sort(
-        (a, b) => b.nkill + b.nwound - (a.nkill + a.nwound)
-      );
-      mostInCurrentArea = mostInCurrentArea.filter(
-        (a) => a.gname !== "Unknown"
-      );
-      if (mostInCurrentArea[0].gname == gname)
-        arrToReturen.push(allCurrGnameAttacks[i]);
-      console.log(
-        `in=${mostInCurrentArea[0].region_txt}, by${mostInCurrentArea[0].gname}= `,
-        mostInCurrentArea[0].nkill + mostInCurrentArea[0].nwound
-      );
+    if (!allCurrGnameAttacks || allCurrGnameAttacks.length === 0) {
+      throw new Error("No events found for the specified group!");
     }
-    console.log("after= ", { arrToReturen });
+
+    const arrToReturn = allCurrGnameAttacks.map((attack) => ({
+      country: attack._id,
+      totalVictims: attack.totalVictims,
+      latitude: attack.latitude != null ? attack.latitude : "Unknown", 
+      longitude: attack.longitude != null ? attack.longitude : "Unknown", 
+    }));
 
     return {
-      data: arrToReturen,
+      data: arrToReturn,
+    };
+  } catch (err: any) {
+    return err.message;
+  }
+};
+
+export const allGroupsService = async (): Promise<responseDTO> => {
+  try {
+    const topGroups = await event.aggregate([
+      { $match: { gname: { $ne: "Unknown" } } },
+      { $group: { _id: "$gname" } },
+      { $sort: { _id: 1 } }, 
+    ]);
+    return {
+      data: topGroups,
     };
   } catch (err: any) {
     return err.message;
