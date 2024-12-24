@@ -1,24 +1,27 @@
-import responseDTO from "../DTO/response";
+import responseDTO from "../types/response";
 import event from "../models/event";
 
 export const topGroupsService = async (quary: {
-  region: string;
+  country: string;
   top?: boolean;
 }): Promise<responseDTO> => {
   try {
-    const { region, top } = quary;
-    if (!region) throw new Error("region quary is required!");
+    const { country, top } = quary;
+    if (!country) throw new Error("country quary is required!");
+
     let topGroups;
+    const matchStage = { $match: { country_txt: country, gname: { $ne: "Unknown" } } };
+
     if (top) {
       topGroups = await event.aggregate([
-        { $match: { region_txt: region } },
+        matchStage,
         { $group: { _id: "$gname", count: { $sum: 1 } } },
         { $sort: { count: -1 } },
         { $limit: 5 },
       ]);
     } else {
       topGroups = await event.aggregate([
-        { $match: { region_txt: region } },
+        matchStage,
         { $group: { _id: "$gname", count: { $sum: 1 } } },
         { $sort: { count: -1 } },
       ]);
@@ -61,7 +64,6 @@ export const groupByYearService = async (quary: {
   }
 };
 
-
 export const deadliestRegionsService = async (quary: {
   gname: string;
 }): Promise<responseDTO> => {
@@ -80,7 +82,7 @@ export const deadliestRegionsService = async (quary: {
 
     for (let i = 0; i < allCurrGnameAttacks.length; i++) {
       let curr = allCurrGnameAttacks[i];
-      
+
       let mostInCurrentArea = await event.find({ region_txt: curr._id });
       if (!mostInCurrentArea || mostInCurrentArea.length == 0)
         throw new Error("!mostInCurrentArea || mostInCurrentArea.length == 0");

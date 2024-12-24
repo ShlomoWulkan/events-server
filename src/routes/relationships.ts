@@ -3,11 +3,10 @@ import { deadliestRegionsService, groupByYearService, topGroupsService } from ".
 import { config } from "dotenv";
 
 export const topGroups = async (
-  req: Request<any, any, any, { region: string; top?: boolean }>,
+  req: Request<any, any, any, { country: string; top?: boolean }>,
   res: Response
 ) => {
   try {
-    // console.log(req.query);
     const deadliestAttack = await topGroupsService(req.query);
     res.status(200).json(deadliestAttack);
   } catch (err) {
@@ -22,7 +21,6 @@ export const groupByYear = async (
   res: Response
 ) => {
   try {
-    // console.log(req.query);
     const deadliestAttack = await groupByYearService(req.query);
     res.status(200).json(deadliestAttack);
   } catch (err) {

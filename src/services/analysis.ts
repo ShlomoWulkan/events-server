@@ -1,4 +1,4 @@
-import responseDTO from "../DTO/response";
+import responseDTO from "../types/response";
 import event from "../models/event";
 
 export const deadliestAttackTypesService = async (): Promise<responseDTO> => {
@@ -41,11 +41,17 @@ export const highestCasualtyRegionsService = async (
           $group: {
             _id: "$country_txt",
             avg: { $avg: { $add: ["$nkill", "$nwound"] } },
-            longitude: { $first: "$longitude" },
-            latitude: { $first: "$latitude" },
+            longitude: { $first: { $cond: [{ $ne: ["$longitude", null] }, "$longitude", null] } },
+            latitude: { $first: { $cond: [{ $ne: ["$latitude", null] }, "$latitude", null] } },
           },
         },
-        { $match: { _id: { $ne: "Unknown" } } }, 
+        {
+          $match: { 
+            _id: { $ne: "Unknown" },
+            longitude: { $ne: null },
+            latitude: { $ne: null },
+          },
+        },
         {
           $project: {
             countryName: "$_id", 
@@ -63,11 +69,17 @@ export const highestCasualtyRegionsService = async (
           $group: {
             _id: "$country_txt",
             avg: { $avg: { $add: ["$nkill", "$nwound"] } },
-            longitude: { $first: "$longitude" },
-            latitude: { $first: "$latitude" },
+            longitude: { $first: { $cond: [{ $ne: ["$longitude", null] }, "$longitude", null] } },
+            latitude: { $first: { $cond: [{ $ne: ["$latitude", null] }, "$latitude", null] } },
           },
         },
-        { $match: { _id: { $ne: "Unknown" } } }, 
+        {
+          $match: { 
+            _id: { $ne: "Unknown" },
+            longitude: { $ne: null },
+            latitude: { $ne: null },
+          },
+        },
         {
           $project: {
             countryName: "$_id", 
@@ -99,8 +111,6 @@ export const incidentTrendsService = async (quary: {
     let incidentTrends;
     const { from, month, to, year } = quary;
 
-    console.log("Query parameters:", quary); 
-
     if (year && month) {
       const yearInt = parseInt(year);
       const monthInt = parseInt(month);
@@ -116,13 +126,9 @@ export const incidentTrendsService = async (quary: {
         { $match: { "_id.year": { $ne: "Unknown" }, "_id.month": { $ne: 0 } } }, 
         { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]);
-
-      console.log("Incident Trends:", incidentTrends); 
     } 
     else if (year) {
       const yearInt = parseInt(year);
-
-      console.log(`Year: ${yearInt}`);
 
       incidentTrends = await event.aggregate([
         { $match: { iyear: yearInt } },
@@ -135,15 +141,11 @@ export const incidentTrendsService = async (quary: {
         { $match: { "_id.year": { $ne: "Unknown" }, "_id.month": { $ne: 0 } } }, 
         { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]);
-
-      console.log("Incident Trends:", incidentTrends);
     } 
     else if (from && to) {
       const fromInt = parseInt(from);
       const toInt = parseInt(to);
-
-      console.log(`From: ${fromInt}, To: ${toInt}`);
-
+      
       incidentTrends = await event.aggregate([
         {
           $match: {

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { createService } from "../services/attack";
-import { newEventDTO } from "../DTO/newEventDTO";
+import { newEventDTO } from "../types/newEventDTO";
 
 export const create = async (
   req: Request<any, newEventDTO>,

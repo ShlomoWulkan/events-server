@@ -1,5 +1,5 @@
 import { io } from "../app";
-import { newEventDTO } from "../DTO/newEventDTO";
+import { newEventDTO } from "../types/newEventDTO";
 import event from "../models/event";
 import { createService } from "../services/attack";
 
