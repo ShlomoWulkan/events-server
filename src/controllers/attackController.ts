@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { createService } from "../services/attack";
+import { createService, deleteService, updateService } from "../services/attack";
 import { newEventDTO } from "../types/newEventDTO";
 
-export const create = async (
+export const createEvent = async (
   req: Request<any, newEventDTO>,
   res: Response
 ) => {
@@ -15,4 +15,22 @@ export const create = async (
   }
 };
 
+export const updateEvent = async (req: Request, res: Response) => {
+  try {
+    const deadliestAttack = await updateService(req.body);
+    res.status(200).json(deadliestAttack);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(400);
+  }
+};
 
+export const deleteEvent = async (req: Request, res: Response) => {
+  try {
+    const deadliestAttack = await deleteService(req.body);
+    res.status(200).json(deadliestAttack);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(400);
+  }
+};

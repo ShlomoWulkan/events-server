@@ -88,3 +88,25 @@ export const createService = async (
     return err.message;
   }
 };
+
+export const updateService = async (
+body: newEventDTO
+): Promise<responseDTO> => {
+  try {
+    return { data: body };
+  } catch (err: any) {
+    console.log(err);
+    return err.message;
+  }
+}
+
+export const deleteService = async (
+  body: newEventDTO
+): Promise<responseDTO> => {
+  try {
+    return { data: body };
+  } catch (err: any) {
+    console.log(err);
+    return err.message;
+  }
+}

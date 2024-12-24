@@ -23,7 +23,8 @@
   "version": "1.0.0",
   "main": "dist/app.js",
   "scripts": {
-    "dev": "nodemon dist/app"
+    "dev": "nodemon dist/app",
+    "start": "node dist/app"
   },
   "author": "menachem",
   "license": "ISC",
