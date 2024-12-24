@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: events-client
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    routes:
+      - from: /old-path
+        to: /new-path
+        status: 301
+      - from: /another-old-path/*
+        to: /new-path/:splat
+        status: 301
+        force: true
